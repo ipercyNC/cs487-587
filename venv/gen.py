@@ -14,10 +14,8 @@ def convert(unique):
         unique = int(unique/26)
         i = i-1
         cnt = cnt +1
-    j = 0
-    for x in range(i+1,7):
-        result[j] = temp[x]
-        j = j + 1
+    for j in range(0,cnt):
+        result[j] = temp[6-j]
     return "".join(result)
 
 def str4Select(index):
@@ -41,7 +39,7 @@ def filenameSelect(count):
         5000000: "fivemtup.csv",
         10000000: "tenmtup.csv",
         }
-    return switcher.get(count)
+    return switcher.get(count,str(count)+"tup.csv")
 
 def datagen(count, filename):
     with open(filename, mode='w', newline='') as employee_file:
@@ -72,7 +70,7 @@ def datagen(count, filename):
 def main(argv):
     count = int(sys.argv[1])
     filename = filenameSelect(count)
-    print(count, filename)
+    #print(count, filename)
     datagen(count, filename)
 
 if __name__ == "__main__":
