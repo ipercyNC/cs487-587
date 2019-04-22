@@ -2,6 +2,66 @@
 import csv
 import random
 import sys
+import psycopg2
+from config import config
+def connect():
+    """ Connect to the PostgreSQL database server """
+    conn = None
+    try:
+        # read connection parameters
+        params = config()
+        # connect to the PostgreSQL server
+        print('Connecting to the PostgreSQL database...')
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+        # execute a statement
+        # cur.execute("CREATE TABLE onektup("
+        #             "unique1 integer,"
+        #             "unique2 integer,"
+        #             "two integer,"
+        #             "four integer,"
+        #             "twenty integer,"
+        #             "onePercent integer,"
+        #             "tenPercent integer,"
+        #             "twentyPercent integer,"
+        #             "fiftyPercent integer,"
+        #             "unique3 integer,"
+        #             "evenOnePercent integer,"
+        #             "oddOnePercent integer,"
+        #             "stringu1 VARCHAR(52),"
+        #             "stringu2 VARCHAR(52),"
+        #             "string4 VARCHAR(52),"
+        #             "UNIQUE(unique1,unique2,unique3)"
+        #             ")")
+        # close the communication with the PostgreSQL
+        return cur
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+def disconnect(cur):
+    conn = None
+    try:
+        cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
+        print cur.fetchall()
+        cur.execute("drop table if exists onektup")
+        cur.execute("drop table if exists tenktup2")
+        cur.execute("drop table if exists tmp")
+        cur.execute("drop table if exists tenktup")
+        cur.execute("drop table if exists tenktup1")
+        cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
+        print cur.fetchall()
+        cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
+        print cur.fetchall()
+        # close the communication with the PostgreSQL
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed.')
+
+
 
 def convert(unique):
     result = list("AAAAAAAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
@@ -43,11 +103,27 @@ def filenameSelect(count):
         }
     return switcher.get(count)
 
-def datagen(count, filename):
-    with open(filename, mode='w', newline='') as employee_file:
+def datagenfile(cur, count, filename):
+        cur.execute("drop table if exists onektup")
+        cur.execute("CREATE TABLE onektup(" 
+                    "unique1 integer,"
+                    "unique2 integer,"
+                    "two integer,"
+                    "four integer,"
+                    "twenty integer,"
+                    "onePercent integer,"
+                    "tenPercent integer,"
+                    "twentyPercent integer,"
+                    "fiftyPercent integer,"
+                    "unique3 integer,"
+                    "evenOnePercent integer,"
+                    "oddOnePercent integer,"
+                    "stringu1 VARCHAR(52),"
+                    "stringu2 VARCHAR(52),"
+                    "string4 VARCHAR(52),"
+                    "UNIQUE(unique1,unique2,unique3)"
+                    ")")
         tupleCount = count
-        employee_writer = csv.writer(employee_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        #employee_writer.writerow(["unique1","unique2", "two", "four", "ten", "twenty", "onepercent", "tenpercent", "twentypercent", "fiftypercent", "unique3", "evenonepercent", "oddonepercent", "stringu1", "stringu2", "string4"])
         numList = random.sample(range(0,tupleCount),tupleCount)
         for i in range(tupleCount):
             unique1 = numList[i]
@@ -66,14 +142,19 @@ def datagen(count, filename):
             stringu1 = convert(unique1)
             stringu2 = convert(unique2)
             string4 = str4Select(i)
-            employee_writer.writerow([unique1, unique2, two, four, ten, twenty, onePercent, tenPercent, twentyPercent, fiftyPercent, unique3, evenOnePercent, oddOnePercent, stringu1, stringu2, string4])
+            cur.execute("insert into onektup(unique1) values("+str(unique1)+")")
+            cur.execute("select * from onektup")
+            print cur.fetchall()
+                        # "[unique1, unique2, two, four, ten, twenty, onePercent, tenPercent, twentyPercent, fiftyPercent, unique3, evenOnePercent, oddOnePercent, stringu1, stringu2, string4])
 
 
 def main(argv):
     count = int(sys.argv[1])
+    cur = connect()
     filename = filenameSelect(count)
     print(count, filename)
-    datagen(count, filename)
+    datagenfile(cur, count, filename)
+    disconnect(cur)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
