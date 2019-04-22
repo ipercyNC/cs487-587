@@ -38,6 +38,9 @@ def filenameSelect(count):
         1000000: "onemtup.csv",
         5000000: "fivemtup.csv",
         10000000: "tenmtup.csv",
+        100000000: "hundredmtup.csv",
+        1000000000: "onebtup.csv",
+        10000000000: "tenbtup.csv"
         }
     return switcher.get(count,str(count)+"tup.csv")
 
@@ -68,7 +71,10 @@ def datagen(count, filename):
 
 
 def main(argv):
-    count = int(sys.argv[1])
+    if(len(sys.argv)<2):
+        count = 10000
+    else:
+        count = int(sys.argv[1])
     filename = filenameSelect(count)
     #print(count, filename)
     datagen(count, filename)
