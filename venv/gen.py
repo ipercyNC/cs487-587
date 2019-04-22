@@ -14,26 +14,6 @@ def connect():
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
-        # execute a statement
-        # cur.execute("CREATE TABLE onektup("
-        #             "unique1 integer,"
-        #             "unique2 integer,"
-        #             "two integer,"
-        #             "four integer,"
-        #             "twenty integer,"
-        #             "onePercent integer,"
-        #             "tenPercent integer,"
-        #             "twentyPercent integer,"
-        #             "fiftyPercent integer,"
-        #             "unique3 integer,"
-        #             "evenOnePercent integer,"
-        #             "oddOnePercent integer,"
-        #             "stringu1 VARCHAR(52),"
-        #             "stringu2 VARCHAR(52),"
-        #             "string4 VARCHAR(52),"
-        #             "UNIQUE(unique1,unique2,unique3)"
-        #             ")")
-        # close the communication with the PostgreSQL
         return cur
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -41,15 +21,13 @@ def connect():
 def disconnect(cur):
     conn = None
     try:
-        cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
-        print cur.fetchall()
+        # cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
+        # print cur.fetchall()
         cur.execute("drop table if exists onektup")
         cur.execute("drop table if exists tenktup2")
         cur.execute("drop table if exists tmp")
         cur.execute("drop table if exists tenktup")
         cur.execute("drop table if exists tenktup1")
-        cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
-        print cur.fetchall()
         cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
         print cur.fetchall()
         # close the communication with the PostgreSQL
@@ -103,9 +81,17 @@ def filenameSelect(count):
         }
     return switcher.get(count)
 
+def filenameIterate(index):
+    tableList = {1: {"count":1000, "name":"onektup"},
+             2: {"count":5000, "name":"fivektup"},
+             3: {"count":10000, "name":"tenktup1"},
+             4: {"count":10000, "name":"tenktup2"}
+    }
+    print tableList[index]
+    return tableList[index]
 def datagenfile(cur, count, filename):
-        cur.execute("drop table if exists onektup")
-        cur.execute("CREATE TABLE onektup(" 
+        cur.execute("drop table if exists " +str(filename))
+        cur.execute("CREATE TABLE "+str(filename)+"(" 
                     "unique1 integer,"
                     "unique2 integer,"
                     "two integer,"
@@ -125,7 +111,10 @@ def datagenfile(cur, count, filename):
                     ")")
         tupleCount = count
         numList = random.sample(range(0,tupleCount),tupleCount)
-        for i in range(tupleCount):
+        lineToInsert =''
+        for i in range(1,tupleCount):
+            if (i!=1 and (i-1)%100!=0):
+                lineToInsert+=","
             unique1 = numList[i]
             unique2 = i
             two= unique1 % 2
@@ -142,19 +131,24 @@ def datagenfile(cur, count, filename):
             stringu1 = convert(unique1)
             stringu2 = convert(unique2)
             string4 = str4Select(i)
-            cur.execute("insert into onektup(unique1) values("+str(unique1)+")")
-            cur.execute("select * from onektup")
-            print cur.fetchall()
-                        # "[unique1, unique2, two, four, ten, twenty, onePercent, tenPercent, twentyPercent, fiftyPercent, unique3, evenOnePercent, oddOnePercent, stringu1, stringu2, string4])
+            lineToInsert += "(" +str(unique1)+","+str(unique2)+","+str(two)+","+str(four) +")"
+            # print lineToInsert
+            if i % 100 ==0:
+                cur.execute("insert into "+str(filename)+"(unique1,unique2,two,four) values "+lineToInsert+"")
+                lineToInsert=''
+        cur.execute("select * from "+str(filename))
+        print cur.fetchone()
 
 
-def main(argv):
-    count = int(sys.argv[1])
+def main():
+    # count = int(sys.argv[1])
     cur = connect()
-    filename = filenameSelect(count)
-    print(count, filename)
-    datagenfile(cur, count, filename)
+    for i in range(1,4):
+        rec = filenameIterate(i)
+        print(rec['count'], rec['name'])
+        datagenfile(cur, rec['count'], rec['name'])
     disconnect(cur)
+    print("Disconnected")
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
