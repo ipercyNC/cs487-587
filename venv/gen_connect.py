@@ -4,16 +4,18 @@ import psycopg2
 import time
 
 from config import config
-def queries(cur, tableName):
+def queries(cur, tableName1, tableName2):
     """ Connect to the PostgreSQL database server """
     try:
         start = time.time()
-        cur.execute("select * from "+tableName+" where unique2 between 0 and 999")
+        cur.execute("explain select * from "+tableName1+" where unique2 between 0 and 999")
         end = time.time()
 
         print "runtime of first query"
         print (end-start)
-        cur.execute("select unique2 from onektup into temp table bprime;")
+        # cur.execute("explain select unique2 from onektup into temp table bprime;")
+        print cur.fetchall()
+        cur.execute("explain (format JSON) select l.* from "+tableName1+" l join "+tableName2 +" r on l.unique2=r.unique2 where l.unique2 between 0 and 999")
         print cur.fetchall()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -24,10 +26,6 @@ def cloneTables(cur, tempSchema):
         # print cur.fetchall()
         cur.execute("create table "+tempSchema+".tenktup1 as table templates.tenktup")
         cur.execute("create table "+tempSchema+".tenktup2 as table templates.tenktup")
-        # cur.execute("select count(*) from "+tempSchema+".tenktup1")
-        # print cur.fetchall()
-        # cur.execute("select count(*) from "+tempSchema+".tenktup2")
-        # print cur.fetchall()
         # cur.execute("select Table_Schema,Table_Name from information_schema.tables where table_type='BASE TABLE' and table_schema not like '%pg%' and table_schema not like '%information%'")
         # print cur.fetchall()
         return cur
@@ -51,24 +49,12 @@ def connect(tempSchema):
 def disconnect(cur, tempSchema):
     conn = None
     try:
-        # cur.execute("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';")
-        # print cur.fetchall()
-        cur.execute("drop schema if exists "+tempSchema+" cascade")
-        # cur.execute("drop table if exists onektup")
-        # cur.execute("drop table if exists fivektup")
-        # cur.execute("drop table if exists tenktup")
-        # cur.execute("drop table if exists tenktup1")
-        # cur.execute("drop table if exists tenktup2")
-        # cur.execute("drop table if exists fiftyktup")
-        # cur.execute("drop table if exists hundredktup")
-        # cur.execute("drop table if exists fivehundredktup")
-        # cur.execute("drop table if exists onemtup")
-        # cur.execute("drop table if exists fivemtup")
-        # cur.execute("drop table if exists tenmtup")
-        # cur.execute("drop table if exists tmp")
-
+        cur.execute("commit")
         cur.execute("select schema_name from information_schema.schemata")
         print cur.fetchall()
+        # cur.execute("drop schema if exists "+tempSchema+" cascade")
+        # cur.execute("select schema_name from information_schema.schemata")
+        # print cur.fetchall()
         # close the communication with the PostgreSQL
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -119,16 +105,16 @@ def filenameSelect(count):
     return switcher.get(count)
 
 def filenameIterate(index):
-    tableList = {1: {"count":1000, "name":"onektup"},
+    tableList = {
+             1: {"count":1000, "name":"onektup"},
              2: {"count":5000,     "name":"fivektup"},
              3: {"count":10000,    "name":"tenktup"},
-             # 4: {"count":10000,    "name":"tenktup2"},
-             5: {"count":50000,    "name":"fiftyktup"},
-             6: {"count":100000,   "name":"hundredktup"},
-             7: {"count":500000,   "name": "fivehundredktup"},
-             8: {"count":1000000,  "name":"onemtup"},
-             9: {"count":5000000,  "name":"fivemtup"},
-            10: {"count":100000000,"name":"tenmtup"}
+             4: {"count":50000,    "name":"fiftyktup"},
+             5: {"count":100000,   "name":"hundredktup"},
+             6: {"count":500000,   "name": "fivehundredktup"},
+             7: {"count":1000000,  "name":"onemtup"},
+             8: {"count":5000000,  "name":"fivemtup"},
+             9: {"count":100000000,"name":"tenmtup"}
     }
     # print tableList[index]
     return tableList[index]
@@ -199,13 +185,14 @@ def datagenfile(cur, count, filename):
 
 
 def main():
-    tempSchema ="testing"
+    tempSchema = "templates"
     cur = connect(tempSchema)
     #Only need to run the generation once to the templates
-    for i in range(1,4):
+    for i in range(1,7):
         rec = filenameIterate(i)
         datagenfile(cur, rec['count'], rec['name'])
-    cloneTables(cur, tempSchema)
+    # cloneTables(cur, tempSchema)
+    # queries(cur, "tenktup1", "tenktup2")
     disconnect(cur, tempSchema)
     print("Disconnected")
 
