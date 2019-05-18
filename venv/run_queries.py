@@ -3,6 +3,7 @@
 import psycopg2
 
 from config import config
+import numpy as np
 
 def connect(tempSchema):
     """ Connect to the PostgreSQL database server """
@@ -37,22 +38,28 @@ def queries(cur, tempSchema, clonedTables):
     """ Connect to the PostgreSQL database server """
     try:
         times ={}
+        query13results=[]
         cur.execute("create table "+tempSchema+".tmp as table "+tempSchema+"."+ clonedTables[0])
         cur.execute("create table "+tempSchema+".bprime as select * from "+tempSchema+"."+ clonedTables[1]+" where "+tempSchema+"."+clonedTables[1]+".unique2 <1000")
         #Query 13 from wisconsin (need to add cluster)
-        cur.execute(" EXPLAIN (ANALYZE, FORMAT JSON) insert into "+tempSchema+".tmp (unique1,unique2,two,four,ten,twenty,onePercent,tenPercent,"
-                                "twentyPercent,fiftyPercent,"
-                                "unique3,evenOnePercent,oddOnePercent,stringu1,stringu2,"
-                                "string4) select l.* from "+tempSchema+"."+clonedTables[0]+
-                                " l,"+tempSchema+".bprime r where l.unique2 = r.unique2")
-        print "runtime of query 13 from wisconsin"
-        result = cur.fetchall()
-        print result[0][0][0]["Execution Time"]
-        cur.execute("delete from "+tempSchema+".tmp")
-        cur.execute("select count(*) from "+tempSchema+".tmp")
-        print "should have cleared tmp table out - results should have 0 count"
-        print cur.fetchall()
-
+        for i in range(10):
+            cur.execute(" EXPLAIN (ANALYZE, FORMAT JSON) insert into "+tempSchema+".tmp (unique1,unique2,two,four,ten,twenty,onePercent,tenPercent,"
+                                    "twentyPercent,fiftyPercent,"
+                                    "unique3,evenOnePercent,oddOnePercent,stringu1,stringu2,"
+                                    "string4) select l.* from "+tempSchema+"."+clonedTables[0]+
+                                    " l,"+tempSchema+".bprime r where l.unique2 = r.unique2")
+            # print "runtime of query 13 from wisconsin"
+            result = cur.fetchall()
+            query13results.append(result[0][0][0]["Execution Time"])
+            # print query13results
+            # cur.execute("delete from "+tempSchema+".tmp")
+            # cur.execute("select count(*) from "+tempSchema+".tmp")
+            # print "should have cleared tmp table out - results should have 0 count"
+            # print cur.fetchall()
+        query13results.remove(max(query13results))
+        query13results.remove(min(query13results))
+        print ("Average of query 13",np.array(query13results).mean())
+        print query13results
         #Query 14 from wisconsin
         cur.execute(
             " EXPLAIN (ANALYZE, FORMAT JSON) insert into " +
