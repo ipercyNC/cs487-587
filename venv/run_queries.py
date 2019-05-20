@@ -42,11 +42,13 @@ def queries(cur, temp_schema, cloned_tables):
         query13_results = []
         query14_results = []
         scaleup_results = {}
+        partial_index_raw = {}
+        partial_index_results = {}
         scaleup_raw = {}
 
         # Test Queries Part 1
         # Can set to smaller table for testing but should be 100k or larger for results
-        update_table_name = 'hundredktup'
+        update_table_name = 'tenktup'
         # 25% selectivity
         update_raw['25% update'] = []
         for j in range(10):
@@ -127,6 +129,31 @@ def queries(cur, temp_schema, cloned_tables):
         query14_results.remove(min(query14_results))
         all_results['query14'] = np.array(query14_results).mean().round(decimals=1)
 
+        # Test Queries Part 3
+        # Values for selection with partial index
+        partial_index_raw['partial'] = []
+        # Values for selection without partial index
+        partial_index_raw['non-partial'] = []
+
+        for i in range(10):
+            cur.execute("drop table if exists " + temp_schema +".tmp")
+            cur.execute("create table " + temp_schema + ".tmp as table templates." + update_table_name)
+            cur.execute("create index idx_two_value_0 on " + temp_schema + ".tmp(two) where two=0")
+            cur.execute("explain (analyze, format json) select l.* from " + temp_schema + ".tmp l join "+temp_schema+".tmp r on l.two=r.two where l.two =0")
+            result = cur.fetchall()
+            partial_index_raw['partial'].append(result[0][0][0]["Execution Time"])
+            cur.execute("explain (analyze, format json) select l.* from " + temp_schema + ".tmp l join "+temp_schema+".tmp r on l.two=r.two where l.two =1")
+            result = cur.fetchall()
+            partial_index_raw['non-partial'].append(result[0][0][0]["Execution Time"])
+            cur.execute("drop table " + temp_schema + ".tmp")
+
+        partial_index_raw['partial'].remove(max(partial_index_raw['partial']))
+        partial_index_raw['partial'].remove(max(partial_index_raw['partial']))
+        partial_index_results['partial'] = np.array(partial_index_raw['partial']).mean().round(decimals=1)
+        partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
+        partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
+        partial_index_results['non-partial'] = np.array(partial_index_raw['non-partial']).mean().round(decimals=1)
+        print partial_index_results
         # Test Queries Part 4
         scaleup = ['onektup', 'tenktup', 'hundredktup', 'fivehundredktup']
         for i in range(len(scaleup)):
