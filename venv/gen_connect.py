@@ -4,21 +4,7 @@ import psycopg2
 import time
 
 from config import config
-def queries(cur, tableName1, tableName2):
-    """ Connect to the PostgreSQL database server """
-    try:
-        start = time.time()
-        cur.execute("explain select * from "+tableName1+" where unique2 between 0 and 999")
-        end = time.time()
 
-        print "runtime of first query"
-        print (end-start)
-        # cur.execute("explain select unique2 from onektup into temp table bprime;")
-        print cur.fetchall()
-        cur.execute("explain (format JSON) select l.* from "+tableName1+" l join "+tableName2 +" r on l.unique2=r.unique2 where l.unique2 between 0 and 999")
-        print cur.fetchall()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
 def cloneTables(cur, tempSchema):
     """Clone tables from templates into tempSchema for running queries"""
     try:
@@ -106,15 +92,15 @@ def filenameSelect(count):
 
 def filenameIterate(index):
     tableList = {
-             1: {"count":1000, "name":"onektup"},
-             2: {"count":5000,     "name":"fivektup"},
-             3: {"count":10000,    "name":"tenktup"},
-             4: {"count":50000,    "name":"fiftyktup"},
-             5: {"count":100000,   "name":"hundredktup"},
-             6: {"count":500000,   "name": "fivehundredktup"},
-             7: {"count":1000000,  "name":"onemtup"},
-             8: {"count":5000000,  "name":"fivemtup"},
-             9: {"count":100000000,"name":"tenmtup"}
+             1: {"count":1000,      "name":"onektup"},
+             2: {"count":5000,      "name":"fivektup"},
+             3: {"count":10000,     "name":"tenktup"},
+             4: {"count":50000,     "name":"fiftyktup"},
+             5: {"count":100000,    "name":"hundredktup"},
+             6: {"count":500000,    "name":"fivehundredktup"},
+             7: {"count":1000000,   "name":"onemtup"},
+             8: {"count":5000000,   "name":"fivemtup"},
+             9: {"count":100000000, "name":"tenmtup"}
     }
     # print tableList[index]
     return tableList[index]
