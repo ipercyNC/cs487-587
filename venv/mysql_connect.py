@@ -151,7 +151,7 @@ def disconnect(cur, db):
 
 def main():
     cur = connect()
-    for i in range(1,2):
+    for i in range(1,7):
         rec = filenameIterate(i)
         datagenfile(cur[0], rec['count'], rec['name'])
     disconnect(cur[0], cur[1])
