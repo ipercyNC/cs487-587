@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import csv
 import random
 import sys
@@ -265,8 +266,9 @@ def mySQLimportData(cur, conn):
     """
 
 def main():
-    for i in range (11):
-        print("Data collection run#:\t%d"%i)
+
+    for runNum in range(1,11):
+        print("Data collection run#:\t%d"%runNum)
         pgSQLconn = None
         mySQLconn = None
 
@@ -301,67 +303,67 @@ def main():
         print("Part 1 Queries")
         print("PostgreSQL Queries")
         print("50% Update Query")
-        Queries.fiftypercentupdate(pgSQLcur, pgSQLconn, "onektup")
+        Queries.fiftypercentupdate(pgSQLcur, pgSQLconn, "onektup", runNum)
         print("75% Update Query")
-        Queries.seventyfivepercentupdate(pgSQLcur, pgSQLconn, "onektup")
+        Queries.seventyfivepercentupdate(pgSQLcur, pgSQLconn, "onektup", runNum)
         print("100% Update Query")
-        Queries.hundredpercentupdate(pgSQLcur, pgSQLconn, "onektup")
+        Queries.hundredpercentupdate(pgSQLcur, pgSQLconn, "onektup", runNum)
         print("Bulk Join Update Query")
-        Queries.bulkjoinupdate(pgSQLcur, pgSQLconn, "onektup")
+        Queries.bulkjoinupdate(pgSQLcur, pgSQLconn, "onektup", runNum)
         print("Index Update Query")
-        Queries.indexupdate(pgSQLcur, pgSQLconn, "onektup")
+        Queries.indexupdate(pgSQLcur, pgSQLconn, "onektup", runNum)
 
         #MySQL queries
         print("MySQL Queries")
         print("50% Update Query")
-        Queries.mySQLfiftypercentupdate(mySQLcur, mySQLconn, "onektup")
+        Queries.mySQLfiftypercentupdate(mySQLcur, mySQLconn, "onektup", runNum)
         print("75% Update Query")
-        Queries.mySQLseventyfivepercentupdate(mySQLcur, mySQLconn, "onektup")
+        Queries.mySQLseventyfivepercentupdate(mySQLcur, mySQLconn, "onektup", runNum)
         print("100% Update Query")
-        Queries.mySQLhundredpercentupdate(mySQLcur, mySQLconn, "onektup")
+        Queries.mySQLhundredpercentupdate(mySQLcur, mySQLconn, "onektup", runNum)
         print("Bulk Join Update Query")
-        Queries.mySQLbulkjoinupdate(mySQLcur, mySQLconn, "onektup")
+        Queries.mySQLbulkjoinupdate(mySQLcur, mySQLconn, "onektup", runNum)
         print("Index Update Query")
-        Queries.mySQLindexupdate(mySQLcur, mySQLconn, "onektup")
+        Queries.mySQLindexupdate(mySQLcur, mySQLconn, "onektup", runNum)
 
         #Part 2 queries - Checking Join algorithm performance
         #Postgres queries
         print("Part 2 queries")
         print("Postgres Queries")
         print("Query13")
-        Queries.query13(pgSQLcur, pgSQLconn, "hundredktup1")
+        Queries.query13(pgSQLcur, pgSQLconn, "hundredktup1", runNum)
         print("Query14")
-        Queries.query14(pgSQLcur, pgSQLconn, "onektup", "tenktup1", "tenktup2")
+        Queries.query14(pgSQLcur, pgSQLconn, "onektup", "tenktup1", "tenktup2", runNum)
 
         #MySQL queries
         print("MySQL Queries")
         print("Query13")
-        Queries.mySQLquery13(mySQLcur, mySQLconn, "hundredktup1")
+        Queries.mySQLquery13(mySQLcur, mySQLconn, "hundredktup1", runNum)
         print("Query14")
-        Queries.mySQLquery14(mySQLcur, mySQLconn, "onektup", "tenktup1", "tenktup2")
+        Queries.mySQLquery14(mySQLcur, mySQLconn, "onektup", "tenktup1", "tenktup2", runNum)
 
         #Part 3 queries - Test the use of partial indicies
         #Variable used to hold table name to create index on
         print("Part 3 Queries")
         print("Postgres Queries")
         print("No partial index Performance Query")
-        Queries.nopartialindexperf(pgSQLcur, pgSQLconn, "hundredktup1")
+        Queries.nopartialindexperf(pgSQLcur, pgSQLconn, "hundredktup1", runNum)
         tableindex = "hundredktup1"
         pgSQLcur.execute("CREATE INDEX idx_two_value_0 "
                     "ON %s(ten) "
                     "WHERE ten <= 3" % tableindex)
         pgSQLconn.commit()
         print("Partial Index Perfomance Query")
-        Queries.partialindexperf(pgSQLcur, pgSQLconn, "hundredktup1")
+        Queries.partialindexperf(pgSQLcur, pgSQLconn, "hundredktup1", runNum)
         pgSQLcur.execute("DROP INDEX IF EXISTS idx_ten_value_3 CASCADE")
 
 
         #MySQL Queries
         print("MySQL Queries")
         print("No partial index Performance Query")
-        Queries.mySQLnopartialindexperf(mySQLcur, mySQLconn, "hundredktup1")
+        Queries.mySQLnopartialindexperf(mySQLcur, mySQLconn, "hundredktup1", runNum)
         print("Partial Index Perfomance Query")
-        Queries.mySQLpartialindexperf(mySQLcur, mySQLconn, "hundredktup1")
+        Queries.mySQLpartialindexperf(mySQLcur, mySQLconn, "hundredktup1", runNum)
 
 
         #Part 4 query - Test the performance of three way join
@@ -371,14 +373,14 @@ def main():
         for i in range(1, 6):
             rec = filenameIterate(i)
             print("3way Join %s Query" % rec['name'])
-            Queries.threewayjoin(pgSQLcur, pgSQLconn, rec['name'])
+            Queries.threewayjoin(pgSQLcur, pgSQLconn, rec['name'], runNum)
 
         #MySQL Queries
         print("MySQL Queries")
         for i in range(1, 6):
             rec = filenameIterate(i)
             print("3way Join %s Query" % rec['name'])
-            Queries.mySQLthreewayjoin(mySQLcur, mySQLconn, rec['name'])
+            Queries.mySQLthreewayjoin(mySQLcur, mySQLconn, rec['name'], runNum)
 
         pgSQLdisconnect(pgSQLcur, pgSQLconn)
         print("Disconnected from PostgreSQL")
