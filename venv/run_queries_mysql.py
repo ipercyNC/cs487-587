@@ -61,6 +61,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         update_raw['25% update'].remove(max(update_raw['25% update']))
         update_raw['25% update'].remove(min(update_raw['25% update']))
         all_results['test1-25%-update'] = np.array(update_raw['25% update']).mean().round(decimals=3)
+        print all_results
 
         update_raw['50% update'] = []
         for j in range(10):
@@ -75,6 +76,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         update_raw['50% update'].remove(max(update_raw['50% update']))
         update_raw['50% update'].remove(min(update_raw['50% update']))
         all_results['test1-50%-update'] = np.array(update_raw['50% update']).mean().round(decimals=3)
+        print all_results
 
         update_raw['75% update'] = []
         for j in range(10):
@@ -89,7 +91,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         update_raw['75% update'].remove(max(update_raw['75% update']))
         update_raw['75% update'].remove(min(update_raw['75% update']))
         all_results['test1-75%-update'] = np.array(update_raw['75% update']).mean().round(decimals=3)
-        print update_results
+        print all_results
 
         update_raw['100% update'] = []
         for j in range(10):
@@ -104,6 +106,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         update_raw['100% update'].remove(max(update_raw['100% update']))
         update_raw['100% update'].remove(min(update_raw['100% update']))
         all_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=3)
+        print all_results
 
         # Bulk update after a join - 2 tables same size
         update_raw['After Join'] = []
@@ -116,6 +119,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         update_raw['After Join'].remove(max(update_raw['After Join']))
         update_raw['After Join'].remove(min(update_raw['After Join']))
         all_results['test1-after-join'] = np.array(update_raw['After Join']).mean().round(decimals=1)
+        print all_results
 
         # Bulk update on an index
         update_raw['Update Index'] = []
@@ -127,7 +131,8 @@ def queries(cur, temp_schema, base_table, cloned_tables):
             update_raw['Update Index'].append(result[0][0][0]["Execution Time"])
         update_raw['Update Index'].remove(max(update_raw['Update Index']))
         update_raw['Update Index'].remove(min(update_raw['Update Index']))
-        update_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
+        all_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
+        print all_results
 
         # Test Queries Part 2
         cur.execute("drop table if exists " + temp_schema+ ".tmp")
@@ -149,7 +154,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         query13_results.remove(max(query13_results))
         query13_results.remove(min(query13_results))
         all_results['test2-query13'] = np.array(query13_results).mean().round(decimals=3)
-        # print all_results
+        print all_results
 
         # # Query 14 from wisconsin
         # for i in range(10):
@@ -169,7 +174,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         # query14_results.remove(max(query14_results))
         # query14_results.remove(min(query14_results))
         # all_results['test2-query14'] = np.array(query14_results).mean().round(decimals=3)
-        print all_results
+        # print all_results
 
         # Test Queries Part 3
         # Values for selection with partial index
@@ -217,9 +222,8 @@ def queries(cur, temp_schema, base_table, cloned_tables):
             scaleup_raw[scaleup[i]].remove(max(scaleup_raw[scaleup[i]]))
             scaleup_raw[scaleup[i]].remove(min(scaleup_raw[scaleup[i]]))
             all_results["test4-"+scaleup[i]] = np.array(scaleup_raw[scaleup[i]]).mean().round(decimals=1)
-
-        print ("Scaleup test averages", scaleup_results)
-        print ("Update averages", update_results)
+        # print ("Scaleup test averages", scaleup_results)
+        # print ("Update averages", update_results)
         print ("All test Averages", all_results)
     except mysql.connector.Error as err:
         print("Something went wrong: {}".format(err))

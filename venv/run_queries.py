@@ -60,6 +60,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['25% update'].remove(max(update_raw['25% update']))
         update_raw['25% update'].remove(min(update_raw['25% update']))
         all_results['test1-25%-update'] = np.array(update_raw['25% update']).mean().round(decimals=1)
+        print all_results
 
         # 50% selectivity
         update_raw['50% update'] = []
@@ -72,6 +73,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['50% update'].remove(max(update_raw['50% update']))
         update_raw['50% update'].remove(min(update_raw['50% update']))
         all_results['test1-50%-update'] = np.array(update_raw['50% update']).mean().round(decimals=1)
+        print all_results
 
         # 75% selectivity
         update_raw['75% update'] = []
@@ -84,6 +86,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['75% update'].remove(max(update_raw['75% update']))
         update_raw['75% update'].remove(min(update_raw['75% update']))
         all_results['test1-75%-update'] = np.array(update_raw['75% update']).mean().round(decimals=1)
+        print all_results
 
         # 100% selectivity
         update_raw['100% update'] = []
@@ -96,6 +99,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['100% update'].remove(max(update_raw['100% update']))
         update_raw['100% update'].remove(min(update_raw['100% update']))
         update_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=1)
+        print all_results
 
         # Bulk update after a join - 2 tables same size
         update_raw['After Join'] = []
@@ -108,6 +112,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['After Join'].remove(max(update_raw['After Join']))
         update_raw['After Join'].remove(min(update_raw['After Join']))
         all_results['test1-after-join'] = np.array(update_raw['After Join']).mean().round(decimals=1)
+        print all_results
 
         # Bulk update on an index
         update_raw['Update Index'] = []
@@ -120,6 +125,7 @@ def queries(cur, temp_schema, cloned_tables):
         update_raw['Update Index'].remove(max(update_raw['Update Index']))
         update_raw['Update Index'].remove(min(update_raw['Update Index']))
         update_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
+        print all_results
 
         # Test Queries Part 2
         cur.execute("create table " + temp_schema + ".tmp as table " + temp_schema + "." + cloned_tables[0])
@@ -136,6 +142,7 @@ def queries(cur, temp_schema, cloned_tables):
         query13_results.remove(max(query13_results))
         query13_results.remove(min(query13_results))
         all_results['test2-query13'] = np.array(query13_results).mean().round(decimals=1)
+        print all_results
 
         # Query 14 from wisconsin
         # for i in range(10):
@@ -177,7 +184,9 @@ def queries(cur, temp_schema, cloned_tables):
         partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
         partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
         all_results['test3-non-partial'] = np.array(partial_index_raw['non-partial']).mean().round(decimals=1)
+        print all_results
         # print partial_index_results
+
         # Test Queries Part 4
         scaleup = ['onektup', 'tenktup', 'hundredktup', 'fivehundredktup']
         for i in range(len(scaleup)):
