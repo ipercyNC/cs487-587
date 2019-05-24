@@ -59,7 +59,7 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['25% update'].append(result[0][0][0]["Execution Time"])
         update_raw['25% update'].remove(max(update_raw['25% update']))
         update_raw['25% update'].remove(min(update_raw['25% update']))
-        update_results['25% update'] = np.array(update_raw['25% update']).mean().round(decimals=1)
+        all_results['test1-25%-update'] = np.array(update_raw['25% update']).mean().round(decimals=1)
 
         # 50% selectivity
         update_raw['50% update'] = []
@@ -71,7 +71,7 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['50% update'].append(result[0][0][0]["Execution Time"])
         update_raw['50% update'].remove(max(update_raw['50% update']))
         update_raw['50% update'].remove(min(update_raw['50% update']))
-        update_results['50% update'] = np.array(update_raw['50% update']).mean().round(decimals=1)
+        all_results['test1-50%-update'] = np.array(update_raw['50% update']).mean().round(decimals=1)
 
         # 75% selectivity
         update_raw['75% update'] = []
@@ -83,7 +83,7 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['75% update'].append(result[0][0][0]["Execution Time"])
         update_raw['75% update'].remove(max(update_raw['75% update']))
         update_raw['75% update'].remove(min(update_raw['75% update']))
-        update_results['75% update'] = np.array(update_raw['75% update']).mean().round(decimals=1)
+        all_results['test1-75%-update'] = np.array(update_raw['75% update']).mean().round(decimals=1)
 
         # 100% selectivity
         update_raw['100% update'] = []
@@ -95,7 +95,31 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['100% update'].append(result[0][0][0]["Execution Time"])
         update_raw['100% update'].remove(max(update_raw['100% update']))
         update_raw['100% update'].remove(min(update_raw['100% update']))
-        update_results['100% update'] = np.array(update_raw['100% update']).mean().round(decimals=1)
+        update_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=1)
+
+        # Bulk update after a join - 2 tables same size
+        update_raw['After Join'] = []
+        for j in range(10):
+            cur.execute("create table " + temp_schema + ".tmp as table templates." + update_table_name)
+            cur.execute("explain (analyze, format json) update "+temp_schema+".tmp set two = 1 from "+temp_schema+".tmp l join "+temp_schema+".tmp r on l.four = r.four where r.four =0")
+            result = cur.fetchall()
+            cur.execute("drop table " + temp_schema + ".tmp")
+            update_raw['After Join'].append(result[0][0][0]["Execution Time"])
+        update_raw['After Join'].remove(max(update_raw['After Join']))
+        update_raw['After Join'].remove(min(update_raw['After Join']))
+        all_results['test1-after-join'] = np.array(update_raw['After Join']).mean().round(decimals=1)
+
+        # Bulk update on an index
+        update_raw['Update Index'] = []
+        for j in range(10):
+            cur.execute("create table " + temp_schema + ".tmp as table templates." + update_table_name)
+            cur.execute("explain (analyze, format json) update "+temp_schema +".tmp set unique2=unique1")
+            result = cur.fetchall()
+            cur.execute("drop table " + temp_schema + ".tmp")
+            update_raw['Update Index'].append(result[0][0][0]["Execution Time"])
+        update_raw['Update Index'].remove(max(update_raw['Update Index']))
+        update_raw['Update Index'].remove(min(update_raw['Update Index']))
+        update_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
 
         # Test Queries Part 2
         cur.execute("create table " + temp_schema + ".tmp as table " + temp_schema + "." + cloned_tables[0])
@@ -111,23 +135,23 @@ def queries(cur, temp_schema, cloned_tables):
             query13_results.append(result[0][0][0]["Execution Time"])
         query13_results.remove(max(query13_results))
         query13_results.remove(min(query13_results))
-        all_results['query13'] = np.array(query13_results).mean().round(decimals=1)
+        all_results['test2-query13'] = np.array(query13_results).mean().round(decimals=1)
 
         # Query 14 from wisconsin
-        for i in range(10):
-            cur.execute(
-                " EXPLAIN (ANALYZE, FORMAT JSON) insert into " +
-                temp_schema + ".tmp (unique1,unique2,two,four,ten,twenty,onePercent,tenPercent,"
-                "twentyPercent,fiftyPercent,"
-                "unique3,evenOnePercent,oddOnePercent,stringu1,stringu2,"
-                "string4) select l.* from " + temp_schema + "." + cloned_tables[2] +
-                " l," + temp_schema + "." + cloned_tables[0] + " r, " + temp_schema + "." + cloned_tables[1] + " rr "
-                "where l.unique2 = r.unique2 and r.unique2=rr.unique2 and r.unique2 <1000")
-            result = cur.fetchall()
-            query14_results.append(result[0][0][0]["Execution Time"])
-        query14_results.remove(max(query14_results))
-        query14_results.remove(min(query14_results))
-        all_results['query14'] = np.array(query14_results).mean().round(decimals=1)
+        # for i in range(10):
+        #     cur.execute(
+        #         " EXPLAIN (ANALYZE, FORMAT JSON) insert into " +
+        #         temp_schema + ".tmp (unique1,unique2,two,four,ten,twenty,onePercent,tenPercent,"
+        #         "twentyPercent,fiftyPercent,"
+        #         "unique3,evenOnePercent,oddOnePercent,stringu1,stringu2,"
+        #         "string4) select l.* from " + temp_schema + "." + cloned_tables[2] +
+        #         " l," + temp_schema + "." + cloned_tables[0] + " r, " + temp_schema + "." + cloned_tables[1] + " rr "
+        #         "where l.unique2 = r.unique2 and r.unique2=rr.unique2 and r.unique2 <1000")
+        #     result = cur.fetchall()
+        #     query14_results.append(result[0][0][0]["Execution Time"])
+        # query14_results.remove(max(query14_results))
+        # query14_results.remove(min(query14_results))
+        # all_results['test2-query14'] = np.array(query14_results).mean().round(decimals=1)
 
         # Test Queries Part 3
         # Values for selection with partial index
@@ -138,27 +162,26 @@ def queries(cur, temp_schema, cloned_tables):
         for i in range(10):
             cur.execute("drop table if exists " + temp_schema +".tmp")
             cur.execute("create table " + temp_schema + ".tmp as table templates." + update_table_name)
-            cur.execute("create index idx_two_value_0 on " + temp_schema + ".tmp(two) where two=0")
-            cur.execute("explain (analyze, format json) select l.* from " + temp_schema + ".tmp l join "+temp_schema+".tmp r on l.two=r.two where l.two =0")
+            cur.execute("create index idx_two_value_0 on " + temp_schema + ".tmp(ten) where ten=1")
+            cur.execute("explain (analyze, format json) select * from " + temp_schema + ".tmp where ten =1")
             result = cur.fetchall()
             partial_index_raw['partial'].append(result[0][0][0]["Execution Time"])
-            cur.execute("explain (analyze, format json) select l.* from " + temp_schema + ".tmp l join "+temp_schema+".tmp r on l.two=r.two where l.two =1")
+            cur.execute("explain (analyze, format json) select * from " + temp_schema + ".tmp where ten =0")
             result = cur.fetchall()
             partial_index_raw['non-partial'].append(result[0][0][0]["Execution Time"])
             cur.execute("drop table " + temp_schema + ".tmp")
 
         partial_index_raw['partial'].remove(max(partial_index_raw['partial']))
         partial_index_raw['partial'].remove(max(partial_index_raw['partial']))
-        partial_index_results['partial'] = np.array(partial_index_raw['partial']).mean().round(decimals=1)
+        all_results['test3-partial'] = np.array(partial_index_raw['partial']).mean().round(decimals=1)
         partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
         partial_index_raw['non-partial'].remove(max(partial_index_raw['non-partial']))
-        partial_index_results['non-partial'] = np.array(partial_index_raw['non-partial']).mean().round(decimals=1)
-        print partial_index_results
+        all_results['test3-non-partial'] = np.array(partial_index_raw['non-partial']).mean().round(decimals=1)
+        # print partial_index_results
         # Test Queries Part 4
         scaleup = ['onektup', 'tenktup', 'hundredktup', 'fivehundredktup']
         for i in range(len(scaleup)):
             scaleup_raw[scaleup[i]] = []
-
             for j in range(10):
                 cur.execute(
                     " EXPLAIN (ANALYZE, FORMAT JSON) select l.unique1, r.unique1, rr.unique1"
@@ -169,10 +192,7 @@ def queries(cur, temp_schema, cloned_tables):
                 scaleup_raw[scaleup[i]].append(result[0][0][0]["Execution Time"])
             scaleup_raw[scaleup[i]].remove(max(scaleup_raw[scaleup[i]]))
             scaleup_raw[scaleup[i]].remove(min(scaleup_raw[scaleup[i]]))
-            scaleup_results[scaleup[i]] = np.array(scaleup_raw[scaleup[i]]).mean().round(decimals=1)
-
-        print ("Scaleup test averages", scaleup_results)
-        print ("Update averages", update_results)
+            all_results["test4-"+scaleup[i]] = np.array(scaleup_raw[scaleup[i]]).mean().round(decimals=1)
         print ("All test Averages", all_results)
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -184,8 +204,6 @@ def disconnect(cur, temp_schema):
     try:
         cur.execute("drop schema if exists " + temp_schema+" cascade")
         cur.execute("commit")
-        # cur.execute("select schema_name from information_schema.schemata")
-        # print cur.fetchall()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
