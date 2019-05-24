@@ -48,74 +48,76 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         # Test Queries Part 1
         # Can set to smaller table for testing but should be 100k or larger for results
         #25% selectivity
-        update_raw['25% update'] = []
-        for j in range(10):
-            cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+"." + update_table_name)
-            cur.execute(" update " + temp_schema + ".tmp set two = 1 where four = 0 ")
-            cur.execute(" show profiles")
-            result = cur.fetchall()
-            # print result[0]
-            cur.execute("drop table " + temp_schema + ".tmp")
-            time = result[0][1]
-            update_raw['25% update'].append(time)
-        update_raw['25% update'].remove(max(update_raw['25% update']))
-        update_raw['25% update'].remove(min(update_raw['25% update']))
-        all_results['test1-25%-update'] = np.array(update_raw['25% update']).mean().round(decimals=3)
-        print all_results
-
-        update_raw['50% update'] = []
-        for j in range(10):
-            cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+ "." + update_table_name)
-            cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=1")
-            cur.execute(" show profiles")
-            result = cur.fetchall()
-            time = result[0][1]
-            # print result[0]
-            cur.execute("drop table " + temp_schema + ".tmp")
-            update_raw['50% update'].append(time)
-        update_raw['50% update'].remove(max(update_raw['50% update']))
-        update_raw['50% update'].remove(min(update_raw['50% update']))
-        all_results['test1-50%-update'] = np.array(update_raw['50% update']).mean().round(decimals=3)
-        print all_results
-
-        update_raw['75% update'] = []
-        for j in range(10):
-            cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+"." + update_table_name)
-            cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=2")
-            cur.execute(" show profiles")
-            result = cur.fetchall()
-            time = result[0][1]
-            # print result[0]
-            cur.execute("drop table " + temp_schema + ".tmp")
-            update_raw['75% update'].append(time)
-        update_raw['75% update'].remove(max(update_raw['75% update']))
-        update_raw['75% update'].remove(min(update_raw['75% update']))
-        all_results['test1-75%-update'] = np.array(update_raw['75% update']).mean().round(decimals=3)
-        print all_results
-
-        update_raw['100% update'] = []
-        for j in range(10):
-            cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+ "." + update_table_name)
-            cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=3")
-            cur.execute(" show profiles")
-            result = cur.fetchall()
-            time = result[0][1]
-            # print result[0]
-            cur.execute("drop table " + temp_schema + ".tmp")
-            update_raw['100% update'].append(time)
-        update_raw['100% update'].remove(max(update_raw['100% update']))
-        update_raw['100% update'].remove(min(update_raw['100% update']))
-        all_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=3)
-        print all_results
+        # update_raw['25% update'] = []
+        # for j in range(10):
+        #     cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+"." + update_table_name)
+        #     cur.execute(" update " + temp_schema + ".tmp set two = 1 where four = 0 ")
+        #     cur.execute(" show profiles")
+        #     result = cur.fetchall()
+        #     # print result[0]
+        #     cur.execute("drop table " + temp_schema + ".tmp")
+        #     time = result[0][1]
+        #     update_raw['25% update'].append(time)
+        # update_raw['25% update'].remove(max(update_raw['25% update']))
+        # update_raw['25% update'].remove(min(update_raw['25% update']))
+        # all_results['test1-25%-update'] = np.array(update_raw['25% update']).mean().round(decimals=3)
+        # print all_results
+        #
+        # update_raw['50% update'] = []
+        # for j in range(10):
+        #     cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+ "." + update_table_name)
+        #     cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=1")
+        #     cur.execute(" show profiles")
+        #     result = cur.fetchall()
+        #     time = result[0][1]
+        #     # print result[0]
+        #     cur.execute("drop table " + temp_schema + ".tmp")
+        #     update_raw['50% update'].append(time)
+        # update_raw['50% update'].remove(max(update_raw['50% update']))
+        # update_raw['50% update'].remove(min(update_raw['50% update']))
+        # all_results['test1-50%-update'] = np.array(update_raw['50% update']).mean().round(decimals=3)
+        # print all_results
+        #
+        # update_raw['75% update'] = []
+        # for j in range(10):
+        #     cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+"." + update_table_name)
+        #     cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=2")
+        #     cur.execute(" show profiles")
+        #     result = cur.fetchall()
+        #     time = result[0][1]
+        #     # print result[0]
+        #     cur.execute("drop table " + temp_schema + ".tmp")
+        #     update_raw['75% update'].append(time)
+        # update_raw['75% update'].remove(max(update_raw['75% update']))
+        # update_raw['75% update'].remove(min(update_raw['75% update']))
+        # all_results['test1-75%-update'] = np.array(update_raw['75% update']).mean().round(decimals=3)
+        # print all_results
+        #
+        # update_raw['100% update'] = []
+        # for j in range(10):
+        #     cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+ "." + update_table_name)
+        #     cur.execute(" update "+ temp_schema + ".tmp set two = 1 where four <=3")
+        #     cur.execute(" show profiles")
+        #     result = cur.fetchall()
+        #     time = result[0][1]
+        #     # print result[0]
+        #     cur.execute("drop table " + temp_schema + ".tmp")
+        #     update_raw['100% update'].append(time)
+        # update_raw['100% update'].remove(max(update_raw['100% update']))
+        # update_raw['100% update'].remove(min(update_raw['100% update']))
+        # all_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=3)
+        # print all_results
 
         # Bulk update after a join - 2 tables same size
         update_raw['After Join'] = []
         for j in range(10):
             cur.execute("create table if not exists " + temp_schema + ".tmp as select * from "+temp_schema+ "." + update_table_name)
-            cur.execute("e update "+temp_schema+".tmp set two = 1 from "+temp_schema+".tmp l join "+temp_schema+".tmp r on l.four = r.four where r.four =0")
+            cur.execute("update "+temp_schema+".tmp l join "+temp_schema+".tmp r on l.four = r.four set l.two=1 where r.four =0")
+            cur.execute(" show profiles")
             result = cur.fetchall()
+            time = result[0][1]
             cur.execute("drop table " + temp_schema + ".tmp")
-            update_raw['After Join'].append(result[0][0][0]["Execution Time"])
+            update_raw['After Join'].append(time)
         update_raw['After Join'].remove(max(update_raw['After Join']))
         update_raw['After Join'].remove(min(update_raw['After Join']))
         all_results['test1-after-join'] = np.array(update_raw['After Join']).mean().round(decimals=1)
@@ -126,9 +128,11 @@ def queries(cur, temp_schema, base_table, cloned_tables):
         for j in range(10):
             cur.execute("create table if not exists " + temp_schema + ".tmp as select * from " + temp_schema + "." + update_table_name)
             cur.execute("update "+temp_schema +".tmp set unique2=unique1")
+            cur.execute(" show profiles")
             result = cur.fetchall()
+            time = result[0][1]
             cur.execute("drop table " + temp_schema + ".tmp")
-            update_raw['Update Index'].append(result[0][0][0]["Execution Time"])
+            update_raw['Update Index'].append(time)
         update_raw['Update Index'].remove(max(update_raw['Update Index']))
         update_raw['Update Index'].remove(min(update_raw['Update Index']))
         all_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
@@ -213,8 +217,8 @@ def queries(cur, temp_schema, base_table, cloned_tables):
             for j in range(10):
                 cur.execute(
                     " select l.unique1, r.unique1, rr.unique1"
-                    " from ipercy." + scaleup[i] +
-                    " l join ipercy." + scaleup[i] + " r on l.unique2 = r.unique2 " +
+                    " from "+temp_schema+"." + scaleup[i] +
+                    " l join "+temp_schema+"." + scaleup[i] + " r on l.unique2 = r.unique2 " +
                     "join ipercy." + scaleup[i] + " rr  on l.unique2 = rr.unique2")
                 result = cur.fetchall()
                 time = result[0][1]
