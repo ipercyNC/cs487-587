@@ -219,7 +219,7 @@ def queries(cur, temp_schema, base_table, cloned_tables):
                     " select l.unique1, r.unique1, rr.unique1"
                     " from "+temp_schema+"." + scaleup[i] +
                     " l join "+temp_schema+"." + scaleup[i] + " r on l.unique2 = r.unique2 " +
-                    "join ipercy." + scaleup[i] + " rr  on l.unique2 = rr.unique2")
+                    "join "+temp_schema +"." + scaleup[i] + " rr  on l.unique2 = rr.unique2")
                 result = cur.fetchall()
                 time = result[0][1]
                 scaleup_raw[scaleup[i]].append(time)

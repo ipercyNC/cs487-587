@@ -98,7 +98,7 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['100% update'].append(result[0][0][0]["Execution Time"])
         update_raw['100% update'].remove(max(update_raw['100% update']))
         update_raw['100% update'].remove(min(update_raw['100% update']))
-        update_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=1)
+        all_results['test1-100%-update'] = np.array(update_raw['100% update']).mean().round(decimals=1)
         print all_results
 
         # Bulk update after a join - 2 tables same size
@@ -124,7 +124,7 @@ def queries(cur, temp_schema, cloned_tables):
             update_raw['Update Index'].append(result[0][0][0]["Execution Time"])
         update_raw['Update Index'].remove(max(update_raw['Update Index']))
         update_raw['Update Index'].remove(min(update_raw['Update Index']))
-        update_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
+        all_results['test1-update-index'] = np.array(update_raw['Update Index']).mean().round(decimals=1)
         print all_results
 
         # Test Queries Part 2
