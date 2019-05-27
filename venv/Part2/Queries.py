@@ -38,7 +38,7 @@ def createbprime(cur, conn, table, size):
 
 
 """Query 1 for part 1:  50% selectivity update"""
-def fiftypercentupdate(cur, conn, table):
+def fiftypercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -50,13 +50,14 @@ def fiftypercentupdate(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQuery50SelectUpdate%s.txt" % table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent = 4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 
 """Query 2 for part 1:  75% selectivity update"""
-def seventyfivepercentupdate(cur, conn, table):
+def seventyfivepercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -68,6 +69,7 @@ def seventyfivepercentupdate(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQuery75SelectUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -75,7 +77,7 @@ def seventyfivepercentupdate(cur, conn, table):
 
 
 """Query 3 for part 1:  100% selectivity update"""
-def hundredpercentupdate(cur, conn, table):
+def hundredpercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -87,6 +89,7 @@ def hundredpercentupdate(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQuery100SelectUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -94,7 +97,7 @@ def hundredpercentupdate(cur, conn, table):
 
 
 """Query 4 for part 1:  Bulk update after a join, using 2 tables of same size"""
-def bulkjoinupdate(cur, conn, table):
+def bulkjoinupdate(cur, conn, table, runNum):
     try:
 
         cur.execute("EXPLAIN (ANALYZE, BUFFERS) "
@@ -108,6 +111,7 @@ def bulkjoinupdate(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQueryJoinUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -115,7 +119,7 @@ def bulkjoinupdate(cur, conn, table):
 
 
 """Query 5 for part 1:  Bulk update on an index"""
-def indexupdate(cur, conn, table):
+def indexupdate(cur, conn, table, runNum):
     try:
 
         cur.execute("EXPLAIN (ANALYZE, BUFFERS) "
@@ -125,6 +129,7 @@ def indexupdate(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQueryIndexUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -132,7 +137,7 @@ def indexupdate(cur, conn, table):
 
 
 """Query 1 for part 3:  Partial index performance"""
-def partialindexperf(cur, conn, table):
+def partialindexperf(cur, conn, table, runNum):
     try:
 
         cur.execute("EXPLAIN (ANALYZE, BUFFERS) "
@@ -142,6 +147,7 @@ def partialindexperf(cur, conn, table):
                     )
         row = cur.fetchall()
         with open("pgQueryPartialIndexUsed%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -149,7 +155,7 @@ def partialindexperf(cur, conn, table):
 
 
 """Query 2 for part 3:  Partial index performance"""
-def nopartialindexperf(cur, conn, table):
+def nopartialindexperf(cur, conn, table, runNum):
     try:
 
         cur.execute("EXPLAIN (ANALYZE, BUFFERS) "
@@ -159,6 +165,7 @@ def nopartialindexperf(cur, conn, table):
                     )
         row = cur.fetchall()
         with open("pgQueryPartialIndexNotUsed%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -166,7 +173,7 @@ def nopartialindexperf(cur, conn, table):
 
 
 """Query for part 4:  3 way join performance"""
-def threewayjoin(cur, conn, table):
+def threewayjoin(cur, conn, table, runNum):
     try:
 
         cur.execute("EXPLAIN (ANALYZE, BUFFERS) "
@@ -179,13 +186,14 @@ def threewayjoin(cur, conn, table):
                     )
         row = cur.fetchall()
         with open("pgQueryThreeWayJoin%s.txt"% table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 
 """Query13 - (clustered index) - JoinABprime"""
-def query13(cur, conn, table):
+def query13(cur, conn, table, runNum):
     """Create the TMP table to hold query results"""
     commands = """
                  CREATE TEMP TABLE query13 (
@@ -234,6 +242,7 @@ def query13(cur, conn, table):
         conn.commit()
         row = cur.fetchall()
         with open("pgQuery13%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -241,7 +250,7 @@ def query13(cur, conn, table):
 
 """Query14 - (clustered index) - JoinCselAselB"""
 
-def query14(cur, conn, table1, table2, table3):
+def query14(cur, conn, table1, table2, table3, runNum):
     commands = """
                    CREATE TEMP TABLE query14 (
                        unique1 integer NOT NULL,
@@ -307,6 +316,7 @@ def query14(cur, conn, table1, table2, table3):
         conn.commit()
         row = cur.fetchall()
         with open("pgQuery14%s_%s_%s.txt"%(table1, table2, table3), mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -336,7 +346,6 @@ def mySQLcreatebprime(cur, conn, table, size):
         )
         """
     try:
-
         cur.execute(commands)
         cur.execute("INSERT INTO bprime SELECT * FROM %s WHERE %s.unique2 < %d" % (table, table, size))
         conn.commit()
@@ -345,7 +354,7 @@ def mySQLcreatebprime(cur, conn, table, size):
 
 
 """Query 1 for part 1:  50% selectivity update"""
-def mySQLfiftypercentupdate(cur, conn, table):
+def mySQLfiftypercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -356,13 +365,14 @@ def mySQLfiftypercentupdate(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQuery50SelectUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent = 4)
         query_file.close()
     except mysql.connector.Error as err:
         print("Something went wrong: {}".format(err))
 
 """Query 2 for part 1:  75% selectivity update"""
-def mySQLseventyfivepercentupdate(cur, conn, table):
+def mySQLseventyfivepercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -373,6 +383,7 @@ def mySQLseventyfivepercentupdate(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQuery75SelectUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -380,7 +391,7 @@ def mySQLseventyfivepercentupdate(cur, conn, table):
 
 
 """Query 3 for part 1:  100% selectivity update"""
-def mySQLhundredpercentupdate(cur, conn, table):
+def mySQLhundredpercentupdate(cur, conn, table, runNum):
 
     try:
 
@@ -391,6 +402,7 @@ def mySQLhundredpercentupdate(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQuery100SelectUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -398,7 +410,7 @@ def mySQLhundredpercentupdate(cur, conn, table):
 
 
 """Query 4 for part 1:  Bulk update after a join, using 2 tables of same size"""
-def mySQLbulkjoinupdate(cur, conn, table):
+def mySQLbulkjoinupdate(cur, conn, table, runNum):
     try:
         cur.execute("Update %s as a "
                     "Join %s as b on a.four = b.four "
@@ -408,6 +420,7 @@ def mySQLbulkjoinupdate(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQueryJoinUpdate%s_%s.txt"%(table,table), mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -415,7 +428,7 @@ def mySQLbulkjoinupdate(cur, conn, table):
 
 
 """Query 5 for part 1:  Bulk update on an index"""
-def mySQLindexupdate(cur, conn, table):
+def mySQLindexupdate(cur, conn, table, runNum):
     try:
 
         cur.execute("UPDATE %s "
@@ -424,6 +437,7 @@ def mySQLindexupdate(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQueryIndexUpdate%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -431,7 +445,7 @@ def mySQLindexupdate(cur, conn, table):
 
 
 """Query 1 for part 3:  Partial index performance"""
-def mySQLpartialindexperf(cur, conn, table):
+def mySQLpartialindexperf(cur, conn, table, runNum):
     try:
 
         cur.execute("SELECT * "
@@ -442,6 +456,7 @@ def mySQLpartialindexperf(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQueryPartialIndexUsed%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -449,7 +464,7 @@ def mySQLpartialindexperf(cur, conn, table):
 
 
 """Query 2 for part 3:  Partial index performance"""
-def mySQLnopartialindexperf(cur, conn, table):
+def mySQLnopartialindexperf(cur, conn, table, runNum):
     try:
 
         cur.execute("SELECT * "
@@ -460,6 +475,7 @@ def mySQLnopartialindexperf(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open("mySQLQueryPartialIndexNotUsed%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -467,7 +483,7 @@ def mySQLnopartialindexperf(cur, conn, table):
 
 
 """Query for part 4:  3 way join performance"""
-def mySQLthreewayjoin(cur, conn, table):
+def mySQLthreewayjoin(cur, conn, table, runNum):
     try:
 
         cur.execute("SELECT a.unique1, b.unique1, c.unique1 "
@@ -481,13 +497,14 @@ def mySQLthreewayjoin(cur, conn, table):
         cur.execute("show profiles")
         row = cur.fetchall()
         with open(("mySQLQueryThreeWayJoin%s.txt"% table), mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
         print("Something went wrong: {}".format(err))
 
 """Query13 - (clustered index) - JoinABprime"""
-def mySQLquery13(cur, conn, table):
+def mySQLquery13(cur, conn, table, runNum):
     """Create the TMP table to hold query results"""
     commands = """
                  CREATE TEMPORARY TABLE query13 (
@@ -534,6 +551,7 @@ def mySQLquery13(cur, conn, table):
         cur.execute(" show profiles")
         row = cur.fetchall()
         with open("mySQLquery13%s.txt"%table, mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
@@ -541,7 +559,7 @@ def mySQLquery13(cur, conn, table):
 
 """Query14 - (clustered index) - JoinCselAselB"""
 
-def mySQLquery14(cur, conn, table1, table2, table3):
+def mySQLquery14(cur, conn, table1, table2, table3, runNum):
     commands = """
                    CREATE TEMPORARY TABLE query14 (
                        unique1 integer NOT NULL,
@@ -605,6 +623,7 @@ def mySQLquery14(cur, conn, table1, table2, table3):
         cur.execute(" show profiles")
         row = cur.fetchall()
         with open("mySQLquery14%s_%s_%s.txt"%(table1,table2,table3), mode='a', newline='') as query_file:
+            query_file.write("Run: %d\n"%runNum)
             json.dump(row, query_file, sort_keys=True, indent=4)
         query_file.close()
     except mysql.connector.Error as err:
